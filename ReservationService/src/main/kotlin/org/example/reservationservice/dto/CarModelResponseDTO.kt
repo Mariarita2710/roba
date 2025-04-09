@@ -1,6 +1,7 @@
 package org.example.reservationservice.dto
 
 import java.math.BigDecimal
+import org.example.reservationservice.model.CarModel
 
 data class CarModelResponseDTO(
     val id: Long,
@@ -19,5 +20,31 @@ data class CarModelResponseDTO(
     val airConditioning: Boolean,
     val infotainmentOptions: String?,
     val safetyFeatures: String?,
-    val rentalPricePerDay: BigDecimal
-)
+    val rentalPricePerDay: BigDecimal,
+    val safetyRating: Int
+) {
+    companion object {
+        fun from(carModel: CarModel): CarModelResponseDTO {
+            return CarModelResponseDTO(
+                id = carModel.id,
+                brand = carModel.brand,
+                model = carModel.model,
+                modelYear = carModel.modelYear,
+                segment = carModel.segment,
+                doors = carModel.doors,
+                seatingCapacity = carModel.seatingCapacity,
+                luggageCapacity = carModel.luggageCapacity,
+                category = carModel.category,
+                engineType = carModel.engineType,
+                transmissionType = carModel.transmissionType,
+                drivetrain = carModel.drivetrain,
+                motorDisplacement = carModel.motorDisplacement,
+                airConditioning = carModel.airConditioning,
+                infotainmentOptions = carModel.infotainmentOptions,
+                safetyFeatures = carModel.safetyFeatures,
+                rentalPricePerDay = carModel.rentalPricePerDay,
+                safetyRating = carModel.safetyRating
+            )
+        }
+    }
+}

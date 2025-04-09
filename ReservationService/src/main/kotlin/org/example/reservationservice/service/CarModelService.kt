@@ -19,21 +19,28 @@ class CarModelService(
 
     fun findAllFiltered(
         brand: String?,
+        model: String?,
         segment: String?,
         engineType: String?,
         transmissionType: String?,
         modelYear: Int?,
+        minPrice: Double?,
+        maxPrice: Double?,
         pageable: Pageable
     ): Page<CarModelResponseDTO> {
         return repository.findFiltered(
             brand,
+            model,
             segment,
             engineType,
             transmissionType,
             modelYear,
+            minPrice,
+            maxPrice,
             pageable
         ).map { it.toResponseDTO() }
     }
+
 
     fun findById(id: Long): CarModelResponseDTO =
         repository.findById(id)
@@ -55,6 +62,8 @@ class CarModelService(
 
         val updated = repository.save(
             existing.copy(
+                id = existing.id,
+
                 brand = request.brand,
                 model = request.model,
                 modelYear = request.modelYear,
@@ -102,7 +111,9 @@ class CarModelService(
         airConditioning = airConditioning,
         infotainmentOptions = infotainmentOptions,
         safetyFeatures = safetyFeatures,
-        rentalPricePerDay = rentalPricePerDay
+        rentalPricePerDay = rentalPricePerDay,
+        safetyRating = safetyRating
+
     )
 
     private fun CarModelRequestDTO.toEntity() = CarModel(
@@ -121,6 +132,7 @@ class CarModelService(
         airConditioning = airConditioning,
         infotainmentOptions = infotainmentOptions,
         safetyFeatures = safetyFeatures,
-        rentalPricePerDay = rentalPricePerDay
+        rentalPricePerDay = rentalPricePerDay,
+        safetyRating = safetyRating
     )
 }

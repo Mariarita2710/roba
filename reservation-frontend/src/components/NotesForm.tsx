@@ -1,4 +1,12 @@
 import React, { useState, useEffect } from "react";
+import {
+    Box,
+    TextField,
+    Button,
+    Typography,
+    Alert,
+    Stack
+} from "@mui/material";
 import { createNote, updateNote } from "../services/api";
 
 export interface NotesFormData {
@@ -9,13 +17,12 @@ export interface NotesFormData {
 
 interface Props {
     vehicleId: number;
-    initialData?: NotesFormData & { id: number }; // se presente => edit mode
+    initialData?: NotesFormData & { id: number }; // edit mode se presente
     onSubmit?: () => void;
     onCancel?: () => void;
 }
 
 const NotesForm: React.FC<Props> = ({ vehicleId, initialData, onSubmit, onCancel }) => {
-
     const [note, setNote] = useState("");
     const [author, setAuthor] = useState("");
     const [createdAt, setCreatedAt] = useState("");
@@ -25,7 +32,7 @@ const NotesForm: React.FC<Props> = ({ vehicleId, initialData, onSubmit, onCancel
         if (initialData) {
             setNote(initialData.note);
             setAuthor(initialData.author);
-            setCreatedAt(initialData.createdAt);
+            setCreatedAt(initialData.createdAt?.slice(0, 16)); // formato per datetime-local
         }
     }, [initialData]);
 
@@ -35,7 +42,7 @@ const NotesForm: React.FC<Props> = ({ vehicleId, initialData, onSubmit, onCancel
         const payload: any = {
             author,
             note,
-            ...(createdAt && { createdAt: new Date(createdAt).toISOString() })
+            createdAt: createdAt ? new Date(createdAt).toISOString() : undefined
         };
 
         try {
@@ -51,51 +58,60 @@ const NotesForm: React.FC<Props> = ({ vehicleId, initialData, onSubmit, onCancel
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mb-4">
-            <h3>{initialData ? "Edit Note" : "Add New Note"}</h3>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Typography variant="h6" gutterBottom>
+                {initialData ? "Edit Note" : "Add New Note"}
+            </Typography>
 
-            {error && <div className="alert alert-danger">{error}</div>}
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
 
-
-            <div className="mb-2">
-                <label className="form-label">Content</label>
-                <textarea
-                    className="form-control"
+            <Stack spacing={2}>
+                <TextField
+                    label="Content"
                     value={note}
                     onChange={(e) => setNote(e.target.value)}
                     required
+                    multiline
+                    rows={3}
+                    fullWidth
                 />
-            </div>
 
-            <div className="mb-2">
-                <label className="form-label">Author</label>
-                <input
-                    type="text"
-                    className="form-control"
+                <TextField
+                    label="Author"
                     value={author}
                     onChange={(e) => setAuthor(e.target.value)}
                     required
+                    fullWidth
                 />
-            </div>
 
-            <div className="mb-2">
-                <label className="form-label">Date</label>
-                <input
+                <TextField
+                    label="Date"
                     type="datetime-local"
-                    className="form-control"
                     value={createdAt}
                     onChange={(e) => setCreatedAt(e.target.value)}
                     required
+                    fullWidth
+                    InputLabelProps={{
+                        shrink: true
+                    }}
                 />
-            </div>
 
-            <button type="submit" className="btn btn-primary me-2">Save</button>
-            {onCancel && (
-                <button type="button" className="btn btn-secondary" onClick={onCancel}>
-                    Cancel
-                </button>
-            )}
-        </form>
+                <Box display="flex" justifyContent="flex-end" gap={2}>
+                    <Button type="submit" variant="contained">
+                        Save
+                    </Button>
+                    {onCancel && (
+                        <Button variant="outlined" onClick={onCancel}>
+                            Cancel
+                        </Button>
+                    )}
+                </Box>
+            </Stack>
+        </Box>
     );
 };
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
     fetchVehicleMaintenances,
     createMaintenance,
@@ -9,12 +9,27 @@ import {
 import MaintenanceForm from "../components/MaintenanceForm";
 import MaintenanceTable from "../components/MaintenanceTable";
 
+import {
+    Box,
+    Typography,
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    IconButton,
+    Alert,
+    Stack
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+
 const MaintenancePage: React.FC = () => {
     const { vehicleId } = useParams<{ vehicleId: string }>();
     const [maintenances, setMaintenances] = useState<MaintenanceRecord[]>([]);
     const [selectedRecord, setSelectedRecord] = useState<MaintenanceRecord | null>(null);
     const [showForm, setShowForm] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const loadMaintenances = async () => {
         if (!vehicleId) return;
@@ -61,45 +76,73 @@ const MaintenancePage: React.FC = () => {
         }
     };
 
-    if (error) return <div>Error: {error}</div>;
-
     return (
-        <div className="container mt-4">
-            <h1>Maintenance Records for Vehicle #{vehicleId}</h1>
+        <Box m={3}>
+            <Box mb={3}>
+                <Stack direction="row" alignItems="center" spacing={1}>
+                    <IconButton onClick={() => navigate("/fleet")} size="small">
+                        <ArrowBackIosNewIcon />
+                    </IconButton>
+                    <Typography variant="h4" fontWeight="bold">
+                        Maintenance Records for Vehicle #{vehicleId}
+                    </Typography>
+                </Stack>
+            </Box>
 
-            {showForm ? (
-                <MaintenanceForm
-                    initialData={selectedRecord || undefined}
-                    onSubmit={handleFormSubmit}
-                    onCancel={handleFormClose}
-                />
+
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
+
+            {maintenances.length === 0 ? (
+                <Alert
+                    severity="info"
+                    action={
+                        <Button color="inherit" size="small" onClick={handleAdd}>
+                            Add
+                        </Button>
+                    }
+                >
+                    No maintenance records found.
+                </Alert>
             ) : (
                 <>
-                    {maintenances.length === 0 ? (
-                        <div className="alert alert-info d-flex justify-content-between align-items-center">
-                            <span>No maintenance records found.</span>
-                            <button onClick={handleAdd} className="btn btn-primary">
-                                Add Maintenance Record
-                            </button>
-                        </div>
-                    ) : (
-                        <>
-                            <MaintenanceTable
-                                vehicleId={parseInt(vehicleId!)}
-                                records={maintenances}
-                                onMaintenanceUpdated={loadMaintenances}
-                                onEdit={handleEdit}
-                            />
-                            <div className="text-end">
-                                <button onClick={handleAdd} className="btn btn-success mt-3">
-                                    Add Maintenance Record
-                                </button>
-                            </div>
-                        </>
-                    )}
+                    <MaintenanceTable
+                        vehicleId={parseInt(vehicleId!)}
+                        records={maintenances}
+                        onMaintenanceUpdated={loadMaintenances}
+                        onEdit={handleEdit}
+                    />
+                    <Box display="flex" justifyContent="flex-end" mt={3}>
+                        <Button variant="contained" color="primary" onClick={handleAdd}>
+                            Add Maintenance Record
+                        </Button>
+                    </Box>
                 </>
             )}
-        </div>
+
+            <Dialog open={showForm} onClose={handleFormClose} fullWidth maxWidth="md">
+                <DialogTitle>
+                    {selectedRecord ? "Edit Maintenance" : "Add Maintenance"}
+                    <IconButton
+                        aria-label="close"
+                        onClick={handleFormClose}
+                        sx={{ position: "absolute", right: 8, top: 8 }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <MaintenanceForm
+                        initialData={selectedRecord || undefined}
+                        onSubmit={handleFormSubmit}
+                        onCancel={handleFormClose}
+                    />
+                </DialogContent>
+            </Dialog>
+        </Box>
     );
 };
 

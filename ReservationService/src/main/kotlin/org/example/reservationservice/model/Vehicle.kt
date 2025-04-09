@@ -21,16 +21,16 @@ data class Vehicle(
 
     @Column(name = "status", nullable = false)
     @Enumerated(EnumType.STRING)
-    val status: VehicleStatus,
+    var status: VehicleStatus,
 
     @Column(name = "kilometers_travelled", nullable = false)
-    val kilometersTravelled: Int = 0,
+    var kilometersTravelled: Int = 0,
 
     @Column(name = "pending_cleaning")
-    val pendingCleaning: Boolean = false,
+    var pendingCleaning: Boolean = false,
 
     @Column(name = "pending_repairs")
-    val pendingRepairs: Boolean = false
+    var pendingRepairs: Boolean = false
 )
 
 enum class VehicleStatus {

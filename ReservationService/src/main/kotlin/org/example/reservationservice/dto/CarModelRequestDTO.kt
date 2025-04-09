@@ -18,5 +18,6 @@ data class CarModelRequestDTO(
     val airConditioning: Boolean,
     val infotainmentOptions: String? = null,
     val safetyFeatures: String? = null,
-    val rentalPricePerDay: BigDecimal
+    val rentalPricePerDay: BigDecimal,
+    val safetyRating: Int
 )

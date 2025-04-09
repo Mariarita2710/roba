@@ -1,3 +1,13 @@
+export type VehicleRequestDTO = {
+    carModelId: number;
+    licensePlate: string;
+    vin: string;
+    status: 'available' | 'rented' | 'maintenance';
+    mileage: number;
+    notes?: string;
+};
+
+
 export type ModelRequestDTO = {
     brand: string;
     model: string;
@@ -15,4 +25,5 @@ export type ModelRequestDTO = {
     infotainmentOptions: string;
     safetyFeatures: string;
     rentalPricePerDay: number;
+    safetyRating: number;
 };

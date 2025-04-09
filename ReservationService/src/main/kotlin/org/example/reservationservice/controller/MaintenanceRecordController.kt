@@ -5,9 +5,10 @@ import org.example.reservationservice.dto.MaintenanceRecordResponseDTO
 import org.example.reservationservice.service.MaintenanceRecordService
 import org.springframework.data.domain.Page
 import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import java.net.URI
 import org.springframework.data.domain.Pageable
 
 @RestController
@@ -31,22 +32,22 @@ class MaintenanceRecordController(
         service.findById(maintenanceId)
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     fun create(
         @PathVariable vehicleId: Long,
         @RequestBody request: MaintenanceRecordRequestDTO
-    ): MaintenanceRecordResponseDTO =
-        service.create(vehicleId, request)
+    ): ResponseEntity<MaintenanceRecordResponseDTO> {
+        val created = service.create(vehicleId, request)
+        val location = URI.create("/api/v1/vehicles/$vehicleId/maintenances/${created.id}")
+        return ResponseEntity.created(location).body(created)
+    }
 
     @PutMapping("/{maintenanceId}")
     fun update(
         @PathVariable maintenanceId: Long,
         @RequestBody request: MaintenanceRecordRequestDTO
-    ): MaintenanceRecordResponseDTO =
-        service.update(maintenanceId, request)
+    ): MaintenanceRecordResponseDTO = service.update(maintenanceId, request)
 
     @DeleteMapping("/{maintenanceId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable maintenanceId: Long) {
         service.delete(maintenanceId)
     }

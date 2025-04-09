@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
 import HomePage from "./pages/HomePage";
 import CarModelsPage from "./pages/CarModelsPage";
 import FleetPage from "./pages/FleetPage";
@@ -20,10 +21,28 @@ function ErrorFallback({ error, resetErrorBoundary }: FallbackProps) {
         </div>
     );
 }
+
+
 function App() {
+    useEffect(() => {
+        const updateBodyPadding = () => {
+            const navbar = document.querySelector(".navbar");
+            if (navbar) {
+                document.body.style.paddingTop = `${navbar.clientHeight}px`;
+            }
+        };
+
+        updateBodyPadding(); // iniziale
+        window.addEventListener("resize", updateBodyPadding); // su resize
+
+        return () => window.removeEventListener("resize", updateBodyPadding); // cleanup
+    }, []);
+
+
+
     return (
         <Router basename="/ui">
-            <NavbarComponent />
+            <NavbarComponent /> {/* assicurati abbia className="navbar" */}
             <ErrorBoundary FallbackComponent={ErrorFallback}>
                 <Routes>
                     <Route path="/" element={<HomePage />} />

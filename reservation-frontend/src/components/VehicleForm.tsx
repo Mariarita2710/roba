@@ -1,4 +1,18 @@
 import React, { useState } from "react";
+import {
+    Box,
+    Button,
+    TextField,
+    Select,
+    MenuItem,
+    InputLabel,
+    FormControl,
+    Typography,
+    Stack,
+    SelectChangeEvent,
+    FormControlLabel,
+    Checkbox,
+} from "@mui/material";
 import { VehicleProps } from "./Vehicle";
 
 type CarModelOption = {
@@ -8,141 +22,195 @@ type CarModelOption = {
     year: number;
 };
 
+type VehicleFormData = {
+    licensePlate: string;
+    vin: string;
+    status: "available" | "rented" | "maintenance";
+    kilometersTravelled: number;
+    carModelId: number;
+    notes?: string;
+    pendingCleaning: boolean;
+    pendingRepairs: boolean;
+};
+
 type VehicleFormProps = {
-    onSubmit: (vehicleData: Omit<VehicleProps, 'id'>) => void;
+    onSubmit: (vehicleData: Omit<VehicleProps, "id" | "carModels" | "onVehicleDeleted" | "onVehicleUpdated">) => void;
     carModels: CarModelOption[];
-    initialData?: Partial<VehicleProps>;
+    initialData?: Partial<VehicleProps> & { carModelId?: number };
 };
 
 const VehicleForm: React.FC<VehicleFormProps> = ({
                                                      onSubmit,
                                                      carModels,
-                                                     initialData = {}
+                                                     initialData = {},
                                                  }) => {
-    const [formData, setFormData] = useState({
-        licensePlate: initialData.licensePlate || '',
-        vin: initialData.vin || '',
-        status: initialData.status || 'available',
-        mileage: initialData.mileage || 0,
-        carModelId: initialData.carModelId || '',
-        notes: initialData.notes || ''
+    const [formData, setFormData] = useState<VehicleFormData>({
+        licensePlate: initialData.licensePlate ?? "",
+        vin: initialData.vin ?? "",
+        status: initialData.status ?? "available",
+        kilometersTravelled: initialData.kilometersTravelled ?? 0,
+        carModelId: initialData.carModel?.id ?? initialData.carModelId ?? 0,
+        notes: initialData.notes ?? "",
+        pendingCleaning: initialData.pendingCleaning ?? false,
+        pendingRepairs: initialData.pendingRepairs ?? false,
     });
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const handleInputChange = (
+        e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+    ) => {
         const { name, value } = e.target;
-        setFormData(prev => ({
+        setFormData((prev) => ({
             ...prev,
-            [name]: name === 'mileage' ? Number(value) : value
+            [name]: name === "kilometersTravelled" ? Number(value) : value,
+        }));
+    };
+
+    const handleSelectChange = (e: SelectChangeEvent) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: name === "carModelId" ? Number(value) : value,
+        }));
+    };
+
+    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, checked } = e.target;
+        setFormData((prev) => ({
+            ...prev,
+            [name]: checked,
         }));
     };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-
-        const preparedData = {
+        if (!formData.carModelId) {
+            alert("Please select a car model.");
+            return;
+        }
+        onSubmit({
             ...formData,
-            carModelId: Number(formData.carModelId),
-        };
-
-        onSubmit(preparedData);
+            carModel: carModels.find(m => m.id === formData.carModelId)! // Required by VehicleProps
+        });
     };
 
+    const selectedModel = carModels.find((model) => model.id === formData.carModelId);
+
     return (
-        <div className="card mb-4">
-            <div className="card-body">
-                <h3 className="card-title">{initialData.id ? 'Edit' : 'Add New'} Vehicle</h3>
-                <form onSubmit={handleSubmit}>
-                    <div className="row">
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">License Plate</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                name="licensePlate"
-                                value={formData.licensePlate}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
+        <Box component="form" onSubmit={handleSubmit} noValidate>
+            <Typography variant="h6" gutterBottom>
+                {initialData?.id ? "Edit" : "Add New"} Vehicle
+            </Typography>
 
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">VIN</label>
-                            <input
-                                type="text"
-                                className="form-control"
-                                name="vin"
-                                value={formData.vin}
-                                onChange={handleChange}
-                                required
-                            />
-                        </div>
-                    </div>
+            <Stack spacing={2}>
+                <TextField
+                    required
+                    label="License Plate"
+                    name="licensePlate"
+                    value={formData.licensePlate}
+                    onChange={handleInputChange}
+                    fullWidth
+                />
 
-                    <div className="row">
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">Status</label>
-                            <select
-                                className="form-select"
-                                name="status"
-                                value={formData.status}
-                                onChange={handleChange}
-                                required
-                            >
-                                <option value="available">Available</option>
-                                <option value="rented">Rented</option>
-                                <option value="maintenance">Under Maintenance</option>
-                            </select>
-                        </div>
+                <TextField
+                    required
+                    label="VIN"
+                    name="vin"
+                    value={formData.vin}
+                    onChange={handleInputChange}
+                    fullWidth
+                />
 
-                        <div className="col-md-6 mb-3">
-                            <label className="form-label">Mileage (km)</label>
-                            <input
-                                type="number"
-                                className="form-control"
-                                name="mileage"
-                                value={formData.mileage}
-                                onChange={handleChange}
-                                min="0"
-                                required
-                            />
-                        </div>
-                    </div>
+                <FormControl fullWidth>
+                    <InputLabel>Status</InputLabel>
+                    <Select
+                        name="status"
+                        value={formData.status}
+                        onChange={handleSelectChange}
+                        required
+                        label="Status"
+                    >
+                        <MenuItem value="available">Available</MenuItem>
+                        <MenuItem value="rented">Rented</MenuItem>
+                        <MenuItem value="maintenance">Under Maintenance</MenuItem>
+                    </Select>
+                </FormControl>
 
-                    <div className="mb-3">
-                        <label className="form-label">Car Model</label>
-                        <select
-                            className="form-select"
-                            name="carModelId"
-                            value={formData.carModelId}
-                            onChange={handleChange}
-                            required
-                        >
-                            <option value="">Select a model</option>
-                            {carModels.map(model => (
-                                <option key={model.id} value={model.id}>
-                                    {model.brand} {model.model} ({model.year})
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                <TextField
+                    required
+                    type="number"
+                    label="Kilometers Travelled"
+                    name="kilometersTravelled"
+                    value={formData.kilometersTravelled}
+                    onChange={handleInputChange}
+                    inputProps={{ min: 0 }}
+                    fullWidth
+                />
 
-                    <div className="mb-3">
-                        <label className="form-label">Notes</label>
-                        <textarea
-                            className="form-control"
-                            name="notes"
-                            value={formData.notes}
-                            onChange={handleChange}
-                            rows={3}
+                <FormControl fullWidth required>
+                    <InputLabel>Car Model</InputLabel>
+                    <Select
+                        name="carModelId"
+                        value={formData.carModelId.toString()}
+                        onChange={handleSelectChange}
+                        label="Car Model"
+                    >
+                        <MenuItem value="0" disabled>Select a model</MenuItem>
+                        {carModels.map((model) => (
+                            <MenuItem key={model.id} value={model.id.toString()}>
+                                {model.brand} {model.model} ({model.year})
+                            </MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+
+                {selectedModel && (
+                    <Box p={2} border={1} borderRadius={2} borderColor="grey.300">
+                        <Typography variant="subtitle1">Selected Model Details</Typography>
+                        <Typography variant="body2">Brand: {selectedModel.brand}</Typography>
+                        <Typography variant="body2">Model: {selectedModel.model}</Typography>
+                        <Typography variant="body2">Year: {selectedModel.year}</Typography>
+                    </Box>
+                )}
+
+                <TextField
+                    label="Notes"
+                    name="notes"
+                    value={formData.notes}
+                    onChange={handleInputChange}
+                    multiline
+                    rows={3}
+                    fullWidth
+                />
+
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={formData.pendingCleaning}
+                            onChange={handleCheckboxChange}
+                            name="pendingCleaning"
                         />
-                    </div>
+                    }
+                    label="Pending Cleaning"
+                />
 
-                    <button type="submit" className="btn btn-primary">
-                        {initialData.id ? 'Update' : 'Save'} Vehicle
-                    </button>
-                </form>
-            </div>
-        </div>
+                <FormControlLabel
+                    control={
+                        <Checkbox
+                            checked={formData.pendingRepairs}
+                            onChange={handleCheckboxChange}
+                            name="pendingRepairs"
+                        />
+                    }
+                    label="Pending Repairs"
+                />
+
+                <Box display="flex" justifyContent="flex-end">
+                    <Button type="submit" variant="contained">
+                        {initialData?.id ? "Update" : "Save"} Vehicle
+                    </Button>
+                </Box>
+            </Stack>
+        </Box>
     );
 };
 

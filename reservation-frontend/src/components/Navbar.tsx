@@ -6,7 +6,7 @@ import NavDropdown from 'react-bootstrap/NavDropdown';
 
 const NavbarComponent: React.FC = () => {
     return (
-        <Navbar expand="lg" fixed="top" bg="primary" variant="dark">
+        <Navbar className="navbar" expand="lg" fixed="top" bg="primary" variant="dark">
             <Container>
                 <Navbar.Brand as={Link} to="/">
                     Car Rental

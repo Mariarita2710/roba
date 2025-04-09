@@ -12,7 +12,9 @@ const fetchData = async (url: string, options?: RequestInit) => {
 // Car Models
 export const fetchCarModels = async (page = 0, size = 10, filters: Record<string, string> = {}) => {
     const params = new URLSearchParams({ page: page.toString(), size: size.toString(), ...filters });
-    return fetchData(`${API_BASE_URL}/models?${params}`);
+    const url = `${API_BASE_URL}/models?${params}`;
+    console.log("FETCHING MODELS FROM:", url); // 👈
+    return fetchData(url);
 };
 
 export const fetchCarModelDetails = async (id: number) =>
@@ -87,8 +89,23 @@ export const partialUpdateVehicle = async (id: number, patch: any) =>
         body: JSON.stringify(patch),
     });
 
-export const deleteVehicle = async (id: number) =>
-    fetchData(`${API_BASE_URL}/vehicles/${id}`, { method: 'DELETE' });
+export const deleteVehicle = async (id: number) => {
+    const response = await fetch(`${API_BASE_URL}/vehicles/${id}`, {
+        method: 'DELETE'
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.message || 'Failed to delete vehicle');
+    }
+
+
+    try {
+        return await response.json();
+    } catch {
+        return {success: true};
+    }
+}
 
 // Maintenance
 export const fetchVehicleMaintenances = async (
@@ -197,4 +214,11 @@ export interface MaintenanceRecord {
     maintenanceDate: string; // usa "date" solo se così arriva dal backend
     cost: number;
 }
+
+export type Note = {
+    id: number;
+    note: string;
+    author: string;
+    createdAt: string;
+};
 

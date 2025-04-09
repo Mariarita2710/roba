@@ -139,3 +139,13 @@ Content-Type: application/json
 
 ### DELETE note
 DELETE http://localhost:8080/api/v1/vehicles/1/notes/1
+
+### PATCH vehicle
+PATCH http://localhost:8080/api/v1/vehicles/2
+Content-Type: application/json-patch+json
+
+[
+  { "op": "replace", "path": "/kilometersTravelled", "value": 400 },
+  { "op": "replace", "path": "/status", "value": "RENTED" }
+]
+

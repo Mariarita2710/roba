@@ -1,10 +1,26 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { fetchVehicleNotes, deleteNote } from "../services/api";
+import { useParams, useNavigate } from "react-router-dom";
+import { fetchVehicleNotes } from "../services/api";
 import NotesForm from "../components/NotesForm";
+
+import {
+    Box,
+    Typography,
+    Button,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    IconButton,
+    Alert,
+    Stack
+} from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import NotesTable from "../components/NotesTable.tsx";
 
 const NotesPage: React.FC = () => {
     const { vehicleId } = useParams<{ vehicleId: string }>();
+    const navigate = useNavigate();
     const [notes, setNotes] = useState<any[]>([]);
     const [editingNote, setEditingNote] = useState<any | null>(null);
     const [showForm, setShowForm] = useState(false);
@@ -24,15 +40,6 @@ const NotesPage: React.FC = () => {
         loadNotes();
     }, [vehicleId]);
 
-    const handleDelete = async (noteId: number) => {
-        if (!window.confirm("Are you sure you want to delete this note?")) return;
-        try {
-            await deleteNote(parseInt(vehicleId!), noteId);
-            await loadNotes();
-        } catch (err) {
-            setError(err instanceof Error ? err.message : "Failed to delete note");
-        }
-    };
 
     const handleAdd = () => {
         setEditingNote(null);
@@ -55,66 +62,70 @@ const NotesPage: React.FC = () => {
     };
 
     return (
-        <div className="container mt-4">
-            <h1>Notes for Vehicle #{vehicleId}</h1>
+        <Box m={3}>
+            <Stack direction="row" alignItems="center" spacing={1} mb={3}>
+                <IconButton onClick={() => navigate("/fleet")}>
+                    <ArrowBackIcon />
+                </IconButton>
+                <Typography variant="h4" fontWeight="bold">
+                    Notes for Vehicle #{vehicleId}
+                </Typography>
+            </Stack>
 
-            {error && <div className="alert alert-danger">{error}</div>}
+            {error && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                    {error}
+                </Alert>
+            )}
 
-            {showForm ? (
-                <NotesForm
-                    vehicleId={parseInt(vehicleId!)}
-                    initialData={editingNote || undefined}
-                    onSubmit={handleFormSubmit}
-                    onCancel={handleFormClose}
-                />
+            {notes.length === 0 ? (
+                <Alert
+                    severity="info"
+                    action={
+                        <Button color="inherit" size="small" onClick={handleAdd}>
+                            Add
+                        </Button>
+                    }
+                >
+                    No notes found for this vehicle.
+                </Alert>
             ) : (
                 <>
-                    {notes.length === 0 ? (
-                        <div className="alert alert-info">
-                            No notes found for this vehicle.
-                            <button className="btn btn-primary ms-3" onClick={handleAdd}>Add New Note</button>
-                        </div>
-                    ) : (
-                        <>
-                            <table className="table table-striped">
-                                <thead>
-                                <tr>
-                                    <th>Content</th>
-                                    <th>Author</th>
-                                    <th>Date</th>
-                                    <th>Actions</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {notes.map((note) => (
-                                    <tr key={note.id}>
-                                        <td>{note.note}</td>
-                                        <td>{note.author}</td>
-                                        <td>{new Date(note.createdAt).toLocaleString()}</td>
-                                        <td>
-                                            <button
-                                                className="btn btn-sm btn-outline-primary me-2"
-                                                onClick={() => handleEdit(note)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="btn btn-sm btn-outline-danger"
-                                                onClick={() => handleDelete(note.id)}
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                                </tbody>
-                            </table>
-                            <button className="btn btn-primary mt-3" onClick={handleAdd}>Add New Note</button>
-                        </>
-                    )}
+                    <NotesTable
+                        vehicleId={parseInt(vehicleId!)}
+                        notes={notes}
+                        onEdit={handleEdit}
+                        onNotesUpdated={loadNotes}
+                    />
+                    <Box display="flex" justifyContent="flex-end" mt={3}>
+                        <Button variant="contained" onClick={handleAdd}>
+                            Add Note
+                        </Button>
+                    </Box>
                 </>
             )}
-        </div>
+
+            <Dialog open={showForm} onClose={handleFormClose} fullWidth maxWidth="sm">
+                <DialogTitle>
+                    {editingNote ? "Edit Note" : "Add Note"}
+                    <IconButton
+                        aria-label="close"
+                        onClick={handleFormClose}
+                        sx={{ position: "absolute", right: 8, top: 8 }}
+                    >
+                        <CloseIcon />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <NotesForm
+                        vehicleId={parseInt(vehicleId!)}
+                        initialData={editingNote || undefined}
+                        onSubmit={handleFormSubmit}
+                        onCancel={handleFormClose}
+                    />
+                </DialogContent>
+            </Dialog>
+        </Box>
     );
 };
 

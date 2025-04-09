@@ -15,19 +15,27 @@ interface CarModelRepository : JpaRepository<CarModel, Long> {
     fun existsByBrandAndModel(brand: String, model: String): Boolean
 
     @Query("""
-        SELECT c FROM CarModel c
-        WHERE (:brand IS NULL OR c.brand = :brand)
-          AND (:segment IS NULL OR c.segment = :segment)
-          AND (:engineType IS NULL OR c.engineType = :engineType)
-          AND (:transmissionType IS NULL OR c.transmissionType = :transmissionType)
-          AND (:modelYear IS NULL OR c.modelYear = :modelYear)
-    """)
+    SELECT c FROM CarModel c
+    WHERE (:brand IS NULL OR c.brand = :brand)
+      AND (:model IS NULL OR c.model = :model)
+      AND (:segment IS NULL OR c.segment = :segment)
+      AND (:engineType IS NULL OR c.engineType = :engineType)
+      AND (:transmissionType IS NULL OR c.transmissionType = :transmissionType)
+      AND (:modelYear IS NULL OR c.modelYear = :modelYear)
+      AND (:minPrice IS NULL OR c.rentalPricePerDay >= :minPrice)
+      AND (:maxPrice IS NULL OR c.rentalPricePerDay <= :maxPrice)
+""")
     fun findFiltered(
         @Param("brand") brand: String?,
+        @Param("model") model: String?,
         @Param("segment") segment: String?,
         @Param("engineType") engineType: String?,
         @Param("transmissionType") transmissionType: String?,
         @Param("modelYear") modelYear: Int?,
+        @Param("minPrice") minPrice: Double?,
+        @Param("maxPrice") maxPrice: Double?,
         pageable: Pageable
     ): Page<CarModel>
+
+
 }

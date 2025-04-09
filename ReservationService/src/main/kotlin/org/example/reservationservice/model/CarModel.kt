@@ -50,6 +50,9 @@ data class CarModel(
     @Column(name = "safety_features", columnDefinition = "TEXT")
     val safetyFeatures: String? = null,
 
+    @Column(name = "safety_rating")
+    val safetyRating: Int = 0,
+
     @Column(name = "rental_price_per_day", precision = 10, scale = 2)
     val rentalPricePerDay: BigDecimal
 )

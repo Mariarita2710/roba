@@ -2,9 +2,10 @@ package org.example.reservationservice.dto
 
 import org.example.reservationservice.model.Vehicle
 
+
 data class VehicleResponseDTO(
     val id: Long,
-    val carModelId: Long,
+    val carModel: CarModelResponseDTO,
     val licensePlate: String,
     val vin: String,
     val status: String,
@@ -21,7 +22,7 @@ data class VehicleResponseDTO(
             kilometersTravelled = vehicle.kilometersTravelled,
             pendingCleaning = vehicle.pendingCleaning,
             pendingRepairs = vehicle.pendingRepairs,
-            carModelId = vehicle.carModel.id
+            carModel = CarModelResponseDTO.from(vehicle.carModel)
         )
     }
 }

@@ -6,9 +6,10 @@ import org.example.reservationservice.service.VehicleNoteService
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.format.annotation.DateTimeFormat
-import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
+import java.net.URI
 
 @RestController
 @RequestMapping("/api/v1/vehicles/{vehicleId}/notes")
@@ -27,11 +28,14 @@ class VehicleNoteController(
         service.findByVehicleIdWithFilters(vehicleId, author, from, to, pageable)
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
     fun create(
         @PathVariable vehicleId: Long,
         @RequestBody request: VehicleNoteRequestDTO
-    ): VehicleNoteResponseDTO = service.create(vehicleId, request)
+    ): ResponseEntity<VehicleNoteResponseDTO> {
+        val created = service.create(vehicleId, request)
+        val location = URI.create("/api/v1/vehicles/$vehicleId/notes/${created.id}")
+        return ResponseEntity.created(location).body(created)
+    }
 
     @PutMapping("/{noteId}")
     fun update(
@@ -40,7 +44,6 @@ class VehicleNoteController(
     ): VehicleNoteResponseDTO = service.update(noteId, request)
 
     @DeleteMapping("/{noteId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     fun delete(@PathVariable noteId: Long) {
         service.delete(noteId)
     }
