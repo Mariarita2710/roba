@@ -1,0 +1,141 @@
+### GET all car models
+GET http://localhost:8080/api/v1/models
+
+### GET car model by ID
+GET http://localhost:8080/api/v1/models/1
+
+### POST new car model
+POST http://localhost:8080/api/v1/models
+Content-Type: application/json
+
+{
+  "brand": "Toyota",
+  "model": "Corolla",
+  "modelYear": 2023,
+  "segment": "C",
+  "doors": 5,
+  "seatingCapacity": 5,
+  "luggageCapacity": 450,
+  "category": "compact",
+  "engineType": "hybrid",
+  "transmissionType": "automatic",
+  "drivetrain": "FWD",
+  "motorDisplacement": 1.8,
+  "airConditioning": true,
+  "infotainmentOptions": "Bluetooth, Apple CarPlay",
+  "safetyFeatures": "ABS, airbags",
+  "rentalPricePerDay": 49.99
+}
+
+### PUT update car model
+PUT http://localhost:8080/api/v1/models/1
+Content-Type: application/json
+
+{
+  "brand": "Toyota",
+  "model": "Corolla",
+  "modelYear": 2023,
+  "segment": "C",
+  "doors": 5,
+  "seatingCapacity": 5,
+  "luggageCapacity": 470,
+  "category": "compact",
+  "engineType": "hybrid",
+  "transmissionType": "automatic",
+  "drivetrain": "FWD",
+  "motorDisplacement": 1.8,
+  "airConditioning": true,
+  "infotainmentOptions": "Bluetooth, Apple CarPlay",
+  "safetyFeatures": "ABS, airbags",
+  "rentalPricePerDay": 52.99
+}
+
+### DELETE car model
+DELETE http://localhost:8080/api/v1/models/1
+
+
+### GET all vehicles (with optional filters)
+GET http://localhost:8080/api/v1/vehicles
+
+### POST new vehicle
+POST http://localhost:8080/api/v1/vehicles
+Content-Type: application/json
+
+{
+  "carModelId": 1,
+  "licensePlate": "ABC123XY",
+  "vin": "1HGCM82633A123456",
+  "status": "available",
+  "kilometersTravelled": 10000,
+  "pendingCleaning": false,
+  "pendingRepairs": false
+}
+
+### PUT update vehicle
+PUT http://localhost:8080/api/v1/vehicles/1
+Content-Type: application/json
+
+{
+  "carModelId": 1,
+  "licensePlate": "ABC123XY",
+  "vin": "1HGCM82633A123456",
+  "status": "rented",
+  "kilometersTravelled": 12000,
+  "pendingCleaning": true,
+  "pendingRepairs": false
+}
+
+### DELETE vehicle
+DELETE http://localhost:8080/api/v1/vehicles/1
+
+
+### GET maintenance records for vehicle
+GET http://localhost:8080/api/v1/vehicles/1/maintenances
+
+### POST new maintenance record
+POST http://localhost:8080/api/v1/vehicles/1/maintenances
+Content-Type: application/json
+
+{
+  "type": "Oil Change",
+  "description": "Changed oil and filter",
+  "cost": 89.99
+}
+
+### PUT update maintenance record
+PUT http://localhost:8080/api/v1/vehicles/1/maintenances/1
+Content-Type: application/json
+
+{
+  "type": "Tire Rotation",
+  "description": "Rotated front and rear tires",
+  "cost": 45.00
+}
+
+### DELETE maintenance record
+DELETE http://localhost:8080/api/v1/vehicles/1/maintenances/1
+
+
+### GET vehicle notes
+GET http://localhost:8080/api/v1/vehicles/1/notes
+
+### POST new note
+POST http://localhost:8080/api/v1/vehicles/1/notes
+Content-Type: application/json
+
+{
+  "author": "Alice",
+  "note": "Vehicle returned clean and in good condition"
+}
+
+### PUT update note
+PUT http://localhost:8080/api/v1/vehicles/1/notes/1
+Content-Type: application/json
+
+{
+  "author": "Alice",
+  "note": "Updated note after inspection"
+}
+
+### DELETE note
+DELETE http://localhost:8080/api/v1/vehicles/1/notes/1
